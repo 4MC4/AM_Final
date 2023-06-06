@@ -1,11 +1,12 @@
 package com.android.example.automation_control_helper
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
+import android.location.LocationManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
-import android.location.LocationManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,56 +16,55 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import android.content.Context
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONObject
+import java.io.IOException
+import java.util.*
+
 
 class FragmentC : Fragment() {
 
     private lateinit var btnGetLocation: Button
     private lateinit var tvLocation: TextView
-    private lateinit var locationManager: LocationManager
+    private lateinit var geocoder: Geocoder
     private lateinit var locationListener: LocationListener
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val view = inflater.inflate(R.layout.fragment_c, container, false)
 
         btnGetLocation = view.findViewById(R.id.btn_get_location)
         tvLocation = view.findViewById(R.id.tv_location)
+        geocoder = Geocoder(requireContext(), Locale.getDefault())
 
-        locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        btnGetLocation.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                // Jeśli mamy zgodę na dostęp do lokalizacji, pobieramy ją
-                getLocation()
-            } else {
-                // Jeśli nie mamy zgodę na dostęp do lokalizacji, wyświetlamy prośbę o zgodę
-                requestPermissions(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ), LOCATION_PERMISSION_REQUEST_CODE
-                )
-            }
-        }
-
-        return view
-    }
-
-    private fun getLocation() {
         locationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
                 val latitude = location.latitude
                 val longitude = location.longitude
                 val locationText = "Latitude: $latitude, Longitude: $longitude"
                 tvLocation.text = locationText
-                tvLocation.visibility = View.VISIBLE
+
+                try {
+                    val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+                    if (addresses != null && addresses.isNotEmpty()) {
+                        val address = addresses[0]
+                        val addressText = "Address: ${address.getAddressLine(0)}"
+                        tvLocation.append("\n$addressText")
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+
+                getTemperatureFromApi(latitude, longitude) // Wywołanie funkcji getTemperatureFromApi()
+
+                tvLocation.visibility = View.VISIBLE // Zmiana widoczności napisu
             }
 
             override fun onProviderEnabled(provider: String) {}
@@ -74,56 +74,81 @@ class FragmentC : Fragment() {
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         }
 
-        // Uzyskaj dostęp do lokalizacji z GPS lub sieci
-        if (ActivityCompat.checkSelfPermission(
+        btnGetLocation.setOnClickListener {
+            checkLocationPermission()
+        }
+
+        return view
+    }
+
+    private fun checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // Pobierz ostatnią znaną lokalizację
-            val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            if (lastKnownLocation != null) {
-                locationListener.onLocationChanged(lastKnownLocation)
-            }
-
-            // Zarejestruj nasłuchiwanie na aktualizacje lokalizacji
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                MIN_TIME_BETWEEN_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATES,
-                locationListener
+            getLocation()
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
             )
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() &&
-                (grantResults[0] == PackageManager.PERMISSION_GRANTED ||
-                        grantResults[1] == PackageManager.PERMISSION_GRANTED)
-            ) {
-                // Jeśli użytkownik udzielił zgody, pobieramy lokalizację
-                getLocation()
-            }
+    private fun getLocation() {
+        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            locationManager.requestSingleUpdate(
+                LocationManager.GPS_PROVIDER,
+                locationListener,
+                null
+            )
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        locationManager.removeUpdates(locationListener)
+    private fun getTemperatureFromApi(latitude: Double, longitude: Double) {
+        val apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=$latitude&longitude=$longitude&current_weather=true"
+
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, apiUrl, null,
+            Response.Listener { response ->
+                val temperature = response.getJSONObject("current_weather").getDouble("temperature")
+                val temperatureText = "Temperature: $temperature °C"
+                tvLocation.append("\n$temperatureText")
+            },
+            Response.ErrorListener { error ->
+                error.printStackTrace()
+            })
+
+        Volley.newRequestQueue(requireContext()).add(jsonObjectRequest)
+    }
+
+    private fun displayLocation(latitude: Double, longitude: Double) {
+        try {
+            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+            if (addresses != null && addresses.isNotEmpty()) {
+                val address = addresses[0]
+                val addressText = "Address: ${address.getAddressLine(0)}"
+                tvLocation.append("\n$addressText")
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 100
-        private const val MIN_TIME_BETWEEN_UPDATES: Long = 5000 // 5 sekund
-        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 10f // 10 metrów
     }
 }
