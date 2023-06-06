@@ -6,9 +6,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.android.example.automation_control_helper.Fragment_A
-import com.android.example.automation_control_helper.Fragment_B
-import com.android.example.automation_control_helper.Fragment_C
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         fragmentManager = supportFragmentManager
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, Fragment_A()).commit()
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, FragmentA()).commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -30,15 +27,15 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_fragment_a -> {
-                showFragment(Fragment_A())
+                showFragment(FragmentA())
                 true
             }
             R.id.action_fragment_b -> {
-                showFragment(Fragment_B())
+                showFragment(FragmentB())
                 true
             }
             R.id.action_fragment_c -> {
-                showFragment(Fragment_C())
+                showFragment(FragmentC())
                 true
             }
             else -> super.onOptionsItemSelected(item)
