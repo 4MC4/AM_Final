@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/action_fragment_a"
-        android:title="Fragment 1"
+        android:title="@string/Plotting_Fragment"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_fragment_b"
-        android:title="Fragment 2"
+        android:title="@string/Transfer_Function_Fragment"
         app:showAsAction="never" />
 
     <item

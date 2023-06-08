@@ -48,13 +48,14 @@
             app:layout_constraintVertical_bias="0.5" />
 
         <EditText
-            android:id="@+id/editTextNumberDecimal2"
+            android:id="@+id/a1"
             android:layout_width="47sp"
             android:layout_height="wrap_content"
             android:layout_marginStart="80sp"
             android:ems="10"
             android:inputType="numberDecimal"
             android:text="0"
+            android:hint="a1"
             android:textAlignment="center"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/imageView3"
@@ -69,24 +70,75 @@
             android:text="z+"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/imageView3"
-            app:layout_constraintStart_toEndOf="@+id/editTextNumberDecimal2"
+            app:layout_constraintStart_toEndOf="@+id/a1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
         <EditText
-            android:id="@+id/editTextNumberDecimal3"
+            android:id="@+id/a0"
             android:layout_width="47sp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16sp"
+            android:layout_marginStart="4sp"
             android:ems="10"
             android:inputType="numberDecimal"
             android:text="0"
+            android:hint="a0"
             android:textAlignment="center"
             android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/imageView3"
             app:layout_constraintStart_toEndOf="@+id/textView8"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/textView11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="60sp"
+            android:text="z^2+"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/imageView3" />
+
+        <EditText
+            android:id="@+id/b1"
+            android:layout_width="47sp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4sp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:text="0"
+            android:hint="b1"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView11"
+            app:layout_constraintTop_toBottomOf="@+id/imageView3"
+            app:layout_constraintVertical_bias="0.5" />
+
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="z+"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/b1" />
+
+        <EditText
+            android:id="@+id/b0"
+            android:layout_width="47sp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4sp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:text="0"
+            android:hint="b0"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/textView12"
+            app:layout_constraintTop_toBottomOf="@+id/imageView3" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

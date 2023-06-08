@@ -5,4 +5,6 @@
     <string name="Get_My_Localization_Button">Get my localization</string>
     <string name="Weather_Fragment">Current Weather</string>
     <string name="Insert_transfer_function">Insert transfer function</string>
+    <string name="Transfer_Function_Fragment">Add transfer function</string>
+    <string name="Plotting_Fragment">Plot</string>
 </resources>
