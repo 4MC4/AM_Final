@@ -5,29 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [Fragment_B.newInstance] factory method to
- * create an instance of this fragment.
- */
 class FragmentB : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var editTextNumberDecimal2: EditText
+    private lateinit var editTextNumberDecimal3: EditText
+    private lateinit var button: Button
+    private lateinit var textViewSum: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,23 +23,29 @@ class FragmentB : Fragment() {
         return inflater.inflate(R.layout.fragment_b, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment Fragment_B.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            FragmentB().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        editTextNumberDecimal2 = view.findViewById(R.id.editTextNumberDecimal2)
+        editTextNumberDecimal3 = view.findViewById(R.id.editTextNumberDecimal3)
+        button = view.findViewById(R.id.button)
+        textViewSum = view.findViewById(R.id.textViewSum)
+
+        // Ustaw domyślne wartości dla miejsc do wpisania tekstu
+        editTextNumberDecimal2.setText("0")
+        editTextNumberDecimal3.setText("0")
+
+        // Obsługa przycisku Calculate
+        button.setOnClickListener {
+            // Pobierz wartości wpisane przez użytkownika
+            val value1 = editTextNumberDecimal2.text.toString().toDouble()
+            val value2 = editTextNumberDecimal3.text.toString().toDouble()
+
+            // Wykonaj obliczenia
+            val sum = value1 + value2
+
+            // Wyświetl sumę poniżej przycisku
+            textViewSum.text = "Sum: $sum"
+        }
     }
 }

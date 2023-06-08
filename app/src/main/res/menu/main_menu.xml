@@ -14,7 +14,7 @@
 
     <item
         android:id="@+id/action_fragment_c"
-        android:title="Fragment 3"
+        android:title="@string/Weather_Fragment"
         app:showAsAction="never" />
 
 </menu>
