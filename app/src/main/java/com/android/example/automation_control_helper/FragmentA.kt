@@ -2,6 +2,7 @@ package com.android.example.automation_control_helper
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +11,16 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import androidx.fragment.app.Fragment
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
 class FragmentA : Fragment() {
     private lateinit var listViewRecords: ListView
     private lateinit var showListButton: Button
+    private lateinit var lineChart: LineChart
     private lateinit var databaseHelper: FragmentB.DatabaseHelper
     private lateinit var adapter: ArrayAdapter<String>
 
@@ -30,6 +37,7 @@ class FragmentA : Fragment() {
 
         listViewRecords = view.findViewById(R.id.listViewRecords)
         showListButton = view.findViewById(R.id.showListButton)
+        lineChart = view.findViewById(R.id.lineChart)
         databaseHelper = FragmentB.DatabaseHelper(requireContext())
 
         showListButton.setOnClickListener {
@@ -38,10 +46,12 @@ class FragmentA : Fragment() {
         }
 
         listViewRecords.setOnItemClickListener { _, _, position, _ ->
-            // Obsługa kliknięcia na rekord w liście
             val selectedRecord = adapter.getItem(position)
-            // Wyświetl wybrany rekord w jakiejś formie
-            // np. showToast(selectedRecord)
+            val id = selectedRecord?.let { getRecordIdFromText(it) }
+            val yValues = id?.let { getRecordYValues(it) }
+            if (yValues != null) {
+                showLineChart(yValues)
+            }
 
             listViewRecords.visibility = View.GONE
             showListButton.visibility = View.VISIBLE
@@ -72,5 +82,49 @@ class FragmentA : Fragment() {
         adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, recordsList)
         listViewRecords.adapter = adapter
         listViewRecords.visibility = View.VISIBLE
+    }
+
+    private fun getRecordIdFromText(text: String): Long {
+        val idRegex = "ID: (\\d+)".toRegex()
+        val matchResult = idRegex.find(text)
+        return matchResult?.groupValues?.getOrNull(1)?.toLong() ?: -1
+    }
+
+    private fun getRecordYValues(id: Long): DoubleArray {
+        val db = databaseHelper.readableDatabase
+        val cursor: Cursor = db.rawQuery("SELECT * FROM CalculatedResponses WHERE ID = $id", null)
+
+        val yValues = DoubleArray(102)
+
+        if (cursor.moveToFirst()) {
+            for (i in 0..101) {
+                yValues[i] = cursor.getDouble(cursor.getColumnIndex("y$i"))
+            }
+        }
+
+        cursor.close()
+
+        return yValues
+    }
+
+    private fun showLineChart(yValues: DoubleArray) {
+        val entries = ArrayList<Entry>()
+
+        for (i in 0..101) {
+            entries.add(Entry(i.toFloat(), yValues[i].toFloat()))
+        }
+
+        val lineDataSet = LineDataSet(entries, "Y Values")
+        lineDataSet.color = Color.BLUE
+        lineDataSet.setDrawValues(false)
+
+        val lineData = LineData(lineDataSet)
+
+        lineChart.data = lineData
+        lineChart.invalidate()
+
+        val description = Description()
+        description.text = "Y Values Over Time"
+        lineChart.description = description
     }
 }
