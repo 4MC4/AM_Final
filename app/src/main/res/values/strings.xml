@@ -7,4 +7,9 @@
     <string name="Insert_transfer_function">Insert transfer function</string>
     <string name="Transfer_Function_Fragment">Add transfer function</string>
     <string name="Plotting_Fragment">Plot</string>
+    <string name="Sensors">Sensors</string>
+    <string name="brightness">Current brightness: %1$.0f lx</string>
+    <string name="Sensor_tester">Check if there is enough light to read</string>
+    <string name="Direction">Direction in which the device is moving</string>
+
 </resources>

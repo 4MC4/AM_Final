@@ -11,8 +11,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     companion object {
         private const val DATABASE_VERSION = 1
         private const val DATABASE_NAME = "MyDatabase.db"
-
-        // Nazwa tabeli i pola
         private const val TABLE_NAME = "Data"
         private const val COLUMN_ID = "ID"
         private const val COLUMN_A1 = "a1"

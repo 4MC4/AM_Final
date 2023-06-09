@@ -128,7 +128,7 @@ class FragmentA : Fragment() {
         }
 
         val lineDataSet = LineDataSet(entries, "Step response")
-        lineDataSet.color = Color.BLUE
+        lineDataSet.color = Color.GREEN
         lineDataSet.setDrawValues(false)
         lineDataSet.setDrawCircles(false)
 
@@ -155,12 +155,12 @@ class FragmentA : Fragment() {
         lineChart.description = description
 
         val legend = lineChart.legend
-        legend.textColor = Color.BLUE
+        legend.textColor = Color.GREEN
 
         val legendEntries = legend.entries
         for (entry in legendEntries) {
             if (entry.label == "Step response") {
-                entry.formColor = Color.BLUE
+                entry.formColor = Color.GREEN
                 break
             }
         }
@@ -174,8 +174,8 @@ class FragmentA : Fragment() {
 
         lineChart.axisRight.isEnabled = false
 
-        lineChart.xAxis.textColor = Color.BLUE
-        lineChart.axisLeft.textColor = Color.BLUE
+        lineChart.xAxis.textColor = Color.GREEN
+        lineChart.axisLeft.textColor = Color.GREEN
         lineChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
         lineChart.xAxis.granularity = 1.0f
 

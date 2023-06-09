@@ -17,4 +17,9 @@
         android:title="@string/Weather_Fragment"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_fragment_d"
+        android:title="@string/Sensors"
+        app:showAsAction="never" />
+
 </menu>
