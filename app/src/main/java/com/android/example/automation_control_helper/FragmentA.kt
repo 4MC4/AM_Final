@@ -11,11 +11,13 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import androidx.fragment.app.Fragment
+import android.graphics.Paint
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.components.XAxis
 
 class FragmentA : Fragment() {
     private lateinit var listViewRecords: ListView
@@ -48,10 +50,8 @@ class FragmentA : Fragment() {
         listViewRecords.setOnItemClickListener { _, _, position, _ ->
             val selectedRecord = adapter.getItem(position)
             val id = selectedRecord?.let { getRecordIdFromText(it) }
-            val yValues = id?.let { getRecordYValues(it) }
-            if (yValues != null) {
-                showLineChart(yValues)
-            }
+            val record = id?.let { getRecordFromDatabase(it) }
+            record?.let { showLineChart(it.yValues, it.b1, it.b0, it.a1, it.a0) }
 
             listViewRecords.visibility = View.GONE
             showListButton.visibility = View.VISIBLE
@@ -90,41 +90,105 @@ class FragmentA : Fragment() {
         return matchResult?.groupValues?.getOrNull(1)?.toLong() ?: -1
     }
 
-    private fun getRecordYValues(id: Long): DoubleArray {
+    private fun getRecordFromDatabase(id: Long): Record? {
         val db = databaseHelper.readableDatabase
         val cursor: Cursor = db.rawQuery("SELECT * FROM CalculatedResponses WHERE ID = $id", null)
 
-        val yValues = DoubleArray(102)
+        var record: Record? = null
 
         if (cursor.moveToFirst()) {
+            val yValues = DoubleArray(102)
+
             for (i in 0..101) {
                 yValues[i] = cursor.getDouble(cursor.getColumnIndex("y$i"))
             }
+
+            val b1 = cursor.getDouble(cursor.getColumnIndex("b1"))
+            val b0 = cursor.getDouble(cursor.getColumnIndex("b0"))
+            val a1 = cursor.getDouble(cursor.getColumnIndex("a1"))
+            val a0 = cursor.getDouble(cursor.getColumnIndex("a0"))
+
+            record = Record(yValues, b1, b0, a1, a0)
         }
 
         cursor.close()
 
-        return yValues
+        return record
     }
 
-    private fun showLineChart(yValues: DoubleArray) {
+    private fun showLineChart(yValues: DoubleArray, b1: Double, b0: Double, a1: Double, a0: Double) {
         val entries = ArrayList<Entry>()
+        val uEntries = ArrayList<Entry>()
+        val uValues = DoubleArray(102) { 1.0 }
+        uValues[0] = 0.0
 
         for (i in 0..101) {
             entries.add(Entry(i.toFloat(), yValues[i].toFloat()))
+            uEntries.add(Entry(i.toFloat(), uValues[i].toFloat()))
         }
 
-        val lineDataSet = LineDataSet(entries, "Y Values")
+        val lineDataSet = LineDataSet(entries, "Step response")
         lineDataSet.color = Color.BLUE
         lineDataSet.setDrawValues(false)
+        lineDataSet.setDrawCircles(false)
 
-        val lineData = LineData(lineDataSet)
+        val uDataSet = LineDataSet(uEntries, "u")
+        uDataSet.color = Color.RED
+        uDataSet.setDrawValues(false)
+        uDataSet.setDrawCircles(false)
+
+        val lineData = LineData(uDataSet, lineDataSet)
 
         lineChart.data = lineData
         lineChart.invalidate()
 
         val description = Description()
-        description.text = "Y Values Over Time"
+        description.text = "Step response for b1=$b1, b0=$b0, a1=$a1, a0=$a0"
+        description.textAlign = Paint.Align.CENTER
+
+        val descriptionPosX = lineChart.width / 2f
+        val descriptionPosY = lineChart.paddingTop.toFloat() + 20 * resources.displayMetrics.scaledDensity
+        description.setPosition(descriptionPosX, descriptionPosY)
+        description.textColor = Color.GREEN
+        description.textSize = 14f
+
         lineChart.description = description
+
+        val legend = lineChart.legend
+        legend.textColor = Color.BLUE
+
+        val legendEntries = legend.entries
+        for (entry in legendEntries) {
+            if (entry.label == "Step response") {
+                entry.formColor = Color.BLUE
+                break
+            }
+        }
+
+        for (entry in legendEntries) {
+            if (entry.label == "u") {
+                entry.formColor = Color.RED
+                break
+            }
+        }
+
+        lineChart.axisRight.isEnabled = false
+
+        lineChart.xAxis.textColor = Color.BLUE
+        lineChart.axisLeft.textColor = Color.BLUE
+        lineChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+        lineChart.xAxis.granularity = 1.0f
+
+        lineChart.axisLeft.valueFormatter = object : com.github.mikephil.charting.formatter.ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return if (value > 9999 || value < -9999) {
+                    String.format("%.2e", value)
+                } else {
+                    value.toString()
+                }
+            }
+        }
     }
+
+    data class Record(val yValues: DoubleArray, val b1: Double, val b0: Double, val a1: Double, val a0: Double)
 }

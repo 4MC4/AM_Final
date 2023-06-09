@@ -103,9 +103,11 @@ class FragmentB : Fragment() {
     ): DoubleArray {
         var y = DoubleArray(102) { 0.0 }
 
-        for (i in 2..101)
+        y[2] = a1-b1*y[1]-b0*y[0]
+
+        for (i in 3..101)
         {
-            y[i]=a1+a0-b1*y[i-1]-b0*y[i-2]
+            y[i] = a1+a0-b1*y[i-1]-b0*y[i-2]
         }
 
         return y
