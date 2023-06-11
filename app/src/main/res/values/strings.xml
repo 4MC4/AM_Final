@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">Automation Control Helper</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="Get_My_Localization_Button">Get my localization</string>
     <string name="Weather_Fragment">Current Weather</string>
     <string name="Insert_transfer_function">Insert transfer function</string>
@@ -11,5 +9,5 @@
     <string name="brightness">Current brightness: %1$.0f lx</string>
     <string name="Sensor_tester">Check if there is enough light to read</string>
     <string name="Direction">Direction in which the device is moving</string>
-
+    <string name="Step_response">Step response</string>
 </resources>

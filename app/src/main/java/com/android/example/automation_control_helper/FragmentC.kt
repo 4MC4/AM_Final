@@ -62,9 +62,9 @@ class FragmentC : Fragment() {
                     e.printStackTrace()
                 }
 
-                getTemperatureFromApi(latitude, longitude) // Wywołanie funkcji getTemperatureFromApi()
+                getTemperatureFromApi(latitude, longitude)
 
-                tvLocation.visibility = View.VISIBLE // Zmiana widoczności napisu
+                tvLocation.visibility = View.VISIBLE
             }
 
             override fun onProviderEnabled(provider: String) {}

@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20sp"
         android:gravity="center"
-        android:text="Insert Transfer Function"
+        android:text="@string/Insert_transfer_function"
         android:textSize="20sp" />
 
 
